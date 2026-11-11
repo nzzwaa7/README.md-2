@@ -1,36 +1,13 @@
-# Arsitektur Infrastruktur Cloud
-
-Diagram ini menunjukkan rancangan infrastruktur jaringan privat, subnet publik, subnet aplikasi, hingga database utama[cite: 3]:
-
 ```mermaid
-flowchart TD
-    User([Mahasiswa / Dosen / Staff]) --> DNS[DNS + CDN + WAF]
-    
-    subgraph VPC ["VPC Cloud Kampus - Jaringan Privat"]
-        subgraph Public ["Public Subnet"]
-            Bastion["Bastion / VPN Admin"]
-            NAT["NAT Gateway"]
-            ALB["Application Load Balancer"]
-        end
-
-        DNS --> ALB
-
-        subgraph PrivateApp ["Private Subnet - Aplikasi"]
-            Web1["Web/App Server AZ-1 (Autoscale)"]
-            Web2["Web/App Server AZ-1 (Container)"]
-            Web3["Web/App Server AZ-2 (Container)"]
-            Cache["Cache Redis"]
-        end
-
-        ALB --> Web1 & Web2 & Web3
-        Web1 & Web2 & Web3 --> Cache
-
-        subgraph PrivateData ["Private Subnet - Data"]
-            DB["DB Utama Managed SQL"]
-            Replica["Read Replica"]
-        end
-
-        Web1 & Web2 & Web3 --> DB
-        Cache --> DB
-        DB --> Replica
+flowchart LR
+    subgraph Alat ["Alat & Gerbang Mutu"]
+        direction LR
+        GH["GitHub Issues & PR"] --> P1["1. Push / PR"]
+        P1 --> P2["2. Build & Package<br><small>Docker & GitHub Actions</small>"]
+        P2 --> P3["3. Automated Testing<br><small>SonarQube & Trivy</small>"]
+        P3 --> P4["4. Release Artifact<br><small>Container Registry GHCR</small>"]
+        P4 --> P5["5. Deploy Staging & Prod<br><small>Terraform & Helm</small>"]
+        P5 --> P6["6. Monitoring & Feedback<br><small>Prometheus & Grafana</small>"]
+        
+        P6 -.->|"Umpan Balik Bug"| GH
     end
